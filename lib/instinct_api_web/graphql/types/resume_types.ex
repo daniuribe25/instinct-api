@@ -52,12 +52,20 @@ defmodule InstinctApiWeb.Graphql.Types.Resumes do
     field :or, list_of(:resume_filters)
   end
 
+  @desc "resumes order"
+  input_object :resumes_order, description: "resumes sorting input" do
+    field :id, :order_by_operators, description: "resume id"
+    field :desired_salary, :order_by_operators, description: "desired salary"
+    field :inserted_at, :order_by_operators, description: "time that resume was inserted"
+  end
+
   # QUERIES
   object :resume_queries do
     @desc "Get all the resumes"
     field :resumes, list_of(:resume) do
       arg :filter, :resume_filters
-      # arg(:order_by, :resume)
+      arg :order_by, :resumes_order
+      arg :pagination, :pagination_input
 
       middleware(AuthorizeMiddleware, [:employer, :admin, :seeker])
       resolve &ResumeResolvers.list/3
