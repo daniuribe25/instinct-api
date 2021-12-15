@@ -5,17 +5,19 @@ defmodule InstinctApi.Services.UserResumes do
   import Ecto.Query, warn: false
   alias InstinctApi.Repo
   alias InstinctApi.Models.Users.UserResume
-  alias InstinctApi.Services.Helpers.Queries
+  alias InstinctApi.Services.Helpers.{Queries, OrderBy, Pagination}
 
   def list do
     Repo.all(User)
   end
 
-  def list_by_filter(filter) do
+  def list_by_filter(filter, order_by, pagination) do
     query = from ur in UserResume, as: :resumes, where: ur.active == true
-    integer_list = [:desired_salary]
+    integer_date_list = [:desired_salary, :inserted_at]
     array_list = [:category, :job_type]
-    query = Queries.filter_search(:resumes, filter, query, integer_list, array_list, :and)
+    query = Queries.filter_search(:resumes, filter, query, integer_date_list, array_list, :and)
+    query = OrderBy.sort(order_by, query)
+    query = Pagination.paginate(pagination, query)
     Repo.all(query)
   end
 
